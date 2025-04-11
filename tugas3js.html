@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tugas 4 - JavaScript</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(to right, #77aaf6, #fcb045);
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      width: 60%;
+      margin: 30px auto;
+      background: #ffffff;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      padding: 20px 30px;
+    }
+    h1, h2 {
+      text-align: center;
+    }
+    label {
+      display: block;
+      margin-top: 15px;
+      font-weight: bold;
+    }
+    input[type="text"], input[type="number"], select {
+      width: 100%;
+      padding: 8px;
+      margin-top: 5px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+    button {
+      margin-top: 20px;
+      padding: 10px 20px;
+      background-color: #4CAF50;
+      color:white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 30px;
+    }
+    .header img {
+      width: 80px;
+      height: 80px;
+      object-fit: cover;
+      border-radius: 50%;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+      margin-left: auto;
+    }
+    .error {
+      color: red;
+      font-size: 0.9em;
+    }
+    input:disabled {
+      background-color: #f0f0f0;
+      color: #888;
+      cursor: not-allowed;
+    }
+    img {
+      display: block;
+      margin: 20px auto;
+      max-width: 100%;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.2);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <div class="header">
+      <div>
+        <h2 style="color:rgb(112, 102, 254)">Nama: Cia Tanti</h2>
+        <p style="color:rgb(255, 79, 214)">NIM: 235314008</p>
+      </div>
+      <img src="foto1.jpg" alt="Foto Mahasiswa">
+    </div>
+    <h1>Tugas 4 - JavaScript</h1>
+
+    <!-- FORM PERTAMA -->
+    <div id="step1">
+      <label for="nama">Nama:</label>
+      <input type="text" id="nama" required>
+
+      <label for="jumlah">Jumlah Pilihan:</label>
+      <input type="number" id="jumlah" min="1" required>
+
+      <div class="error" id="errorStep1"></div>
+
+      <button onclick="nextStep1()">OK</button>
+    </div>
+
+    <!-- FORM KEDUA -->
+    <div id="step2" style="display:none;">
+      <h3>Masukkan Pilihan</h3>
+      <form id="pilihanForm"></form>
+      <div class="error" id="errorStep2"></div>
+      <button onclick="nextStep2()">OK</button>
+    </div>
+
+    <!-- PILIHAN RADIO/DROPDOWN -->
+    <div id="step3" style="display:none;">
+      <h3>Pilih Salah Satu</h3>
+
+      <div id="radioOptions"></div>
+
+      <label for="dropdown">Atau pilih dari dropdown:</label>
+      <select id="dropdown"></select>
+
+      <div class="error" id="errorStep3"></div>
+
+      <button onclick="nextStep3()">OK</button>
+    </div>
+
+    <!-- HASIL AKHIR -->
+    <div id="result" style="display:none;">
+      <h3>Hasil Akhir</h3>
+      <p id="finalResult"></p>
+
+      <!-- Menampilkan Gambar
+      <img id="resultImage" src="" alt="Gambar pilihan"> -->
+    </div>
+
+</div>
+<script>
+    let namaValue = "";
+    let jumlahValue = 0;
+    let pilihanArray = [];
+
+    function nextStep1() {
+        const nama = document.getElementById('nama').value.trim();
+        const jumlah = parseInt(document.getElementById('jumlah').value);
+        const errorStep1 = document.getElementById('errorStep1');
+        const namaRegex = /^[a-zA-Z\s]+$/;
+
+        if (!nama || !namaRegex.test(nama)) {
+            errorStep1.innerText = "Nama harus berisi huruf saja!";
+            return;
+        }
+
+        if (isNaN(jumlah) || jumlah < 1) {
+            errorStep1.innerText = "Jumlah harus lebih dari 0!";
+            return;
+        }
+
+        // Hapus pesan error jika input sudah benar
+        errorStep1.innerText = "";
+
+        namaValue = nama;
+        jumlahValue = jumlah;
+
+        document.getElementById('nama').disabled = true;
+        document.getElementById('jumlah').disabled = true;
+        document.querySelector('#step1 button').disabled = true;
+
+        const form = document.getElementById('pilihanForm');
+        form.innerHTML = '';
+
+        for (let i = 1; i <= jumlah; i++) {
+            const label = document.createElement('label');
+            label.innerText = `Pilihan ${i}:`;
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.id = `pilihan${i}`;
+            input.required = true;
+            input.addEventListener('input', () => document.getElementById('errorStep2').innerText = ""); // Hapus pesan error saat user mengetik
+
+            form.appendChild(label);
+            form.appendChild(input);
+        }
+
+        document.getElementById('step2').style.display = 'block';
+    }
+
+    function nextStep2() {
+        pilihanArray = [];
+        const errorStep2 = document.getElementById('errorStep2');
+
+        for (let i = 1; i <= jumlahValue; i++) {
+            const value = document.getElementById(`pilihan${i}`).value.trim();
+            if (!value) {
+                errorStep2.innerText = `Semua pilihan harus diisi!`;
+                return;
+            }
+            pilihanArray.push(value);
+        }
+
+        errorStep2.innerText = ""; // Hapus pesan error setelah input benar
+
+        const radioContainer = document.getElementById('radioOptions');
+        radioContainer.innerHTML = '';
+
+        const dropdown = document.getElementById('dropdown');
+        dropdown.innerHTML = '';
+
+        pilihanArray.forEach((pilihan, index) => {
+            const radio = document.createElement('input');
+            radio.type = 'radio';
+            radio.name = 'pilihanRadio';
+            radio.value = pilihan;
+            radio.id = `radio_${index}`;
+            if (index === 0) radio.checked = true;
+
+            radio.addEventListener('change', syncFromRadio); // Tambah event listener agar sinkron dengan dropdown
+
+            const label = document.createElement('label');
+            label.innerText = pilihan;
+            label.htmlFor = `radio_${index}`;
+            label.style.marginLeft = '5px';
+
+            const div = document.createElement('div');
+            div.appendChild(radio);
+            div.appendChild(label);
+            radioContainer.appendChild(div);
+
+            const option = document.createElement('option');
+            option.value = pilihan;
+            option.innerText = pilihan;
+            dropdown.appendChild(option);
+        });
+
+        document.getElementById('step3').style.display = 'block';
+
+        for (let i = 1; i <= jumlahValue; i++) {
+            document.getElementById(`pilihan${i}`).disabled = true;
+        }
+        document.querySelector('#step2 button').disabled = true;
+    }
+
+    function syncFromRadio() {
+        const selectedRadio = document.querySelector('input[name="pilihanRadio"]:checked');
+        if (selectedRadio) {
+            document.getElementById('dropdown').value = selectedRadio.value;
+        }
+    }
+
+    function syncFromDropdown() {
+            const selectedDropdown = document.getElementById('dropdown').value;
+            document.querySelectorAll('input[name="pilihanRadio"]').forEach(radio => {
+            radio.checked = radio.value === selectedDropdown;
+        });
+    }
+
+    function nextStep3() {
+      const radios = document.getElementsByName('pilihanRadio');
+      let selectedRadio = null;
+      const errorStep3 = document.getElementById('errorStep3');
+
+        radios.forEach(r => {
+            if (r.checked) selectedRadio = r.value;
+        });
+
+        if (!selectedRadio) {
+            errorStep3.innerText = "Silakan pilih salah satu opsi!";
+            return;
+        }
+
+        errorStep3.innerText = ""; // Hapus pesan error setelah pilihan valid
+
+        const hasil = `Halo, nama saya ${namaValue}, saya mempunyai ${jumlahValue} pilihan yaitu ${pilihanArray.join(', ')}, dan saya memilih ${selectedRadio}.`;
+
+        document.getElementById('finalResult').innerText = hasil;
+        document.getElementById('result').style.display = 'block';
+
+        document.getElementsByName('pilihanRadio').forEach(radio => radio.disabled = true);
+        document.getElementById('dropdown').disabled = true;
+        document.querySelector('#step3 button').disabled = true;
+    }
+    </script>
+
+</body>
+</html>
